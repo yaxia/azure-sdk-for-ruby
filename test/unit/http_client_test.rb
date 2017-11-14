@@ -34,6 +34,10 @@ describe Azure::HttpClient do
     end
 
     describe 'when not using a ca_file' do
+      let :uri do
+        URI('http://management.core.windows.net')
+      end
+
       it 'should not set ca_file option on the http connection' do
         Azure.agents(uri).ssl[:ca_file].must_be_nil
       end

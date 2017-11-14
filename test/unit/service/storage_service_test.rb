@@ -38,6 +38,7 @@ describe Azure::Service::StorageService do
         'Custom-Header' => 'PreviousValue',
         'connection' => 'PreviousValue'
     } }
+    let(:options) { {} }
 
     before do
       Azure::Core::Http::HttpRequest.stubs(:new).with(verb, uri, anything).returns(mock_request)
@@ -47,7 +48,7 @@ describe Azure::Service::StorageService do
     end
 
     it 'adds a SignerFilter to the HTTP pipeline' do
-      mock_request.expects(:with_filter).with(mock_signer_filter)
+      mock_request.expects(:with_filter).with(mock_signer_filter, options)
       subject.call(verb, uri)
     end
 
@@ -59,8 +60,9 @@ describe Azure::Service::StorageService do
                                                             body: nil,
                                                             headers: {'Custom-Header' => 'CustomValue'},
                                                             client: nil
-                                                        }).returns(mock_request)
-        mock_request.expects(:with_filter).with(mock_signer_filter)
+                                                        },
+                                                        options).returns(mock_request)
+        mock_request.expects(:with_filter).with(mock_signer_filter, options)
       end
 
       it 'passes the custom headers into the request initializer' do
@@ -70,7 +72,7 @@ describe Azure::Service::StorageService do
 
     describe 'when passed the optional body arguement' do
       before do
-        mock_request.expects(:with_filter).with(mock_signer_filter)
+        mock_request.expects(:with_filter).with(mock_signer_filter, options)
       end
 
       it 'passes the body to the to HttpRequest' do
@@ -81,7 +83,7 @@ describe Azure::Service::StorageService do
 
     describe 'when with_filter was called' do
       before do
-        mock_request.expects(:with_filter).with(mock_signer_filter)
+        mock_request.expects(:with_filter).with(mock_signer_filter, options)
       end
 
       it 'builds the HTTP pipeline by passing the filters to the HTTPRequest' do
@@ -91,8 +93,8 @@ describe Azure::Service::StorageService do
         subject.with_filter filter
         subject.with_filter filter1
 
-        mock_request.expects(:with_filter).with(filter)
-        mock_request.expects(:with_filter).with(filter1)
+        mock_request.expects(:with_filter).with(filter, options)
+        mock_request.expects(:with_filter).with(filter1, options)
 
         subject.call(verb, uri)
       end
